@@ -8,17 +8,35 @@ import * as ProductService from '../../services/ProductService'
 import { useQuery } from '@tanstack/react-query'
 import Loading from '../LoadingComponent/Loading'
 import { useState } from 'react'
-
+import { useDispatch, useSelector } from 'react-redux'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { addOrderProduct,resetOrder } from '../../redux/slides/orderSlide'
+import { convertPrice, initFacebookSDK } from '../../utils'
+import { useEffect } from 'react'
+import * as message from '../Message/Message'
+import LikeButtonComponent from '../LikeButtonComponent/LikeButtonComponent'
+import CommentComponent from '../CommentComponent/CommentComponent'
+import { useMemo } from 'react'
 
 const ProductDetailsComponent = ({idProduct}) => {
     const [numProduct, setNumProduct] = useState(1)
     const user = useSelector((state) => state.user)
     const order = useSelector((state) => state.order)
     const [errorLimitOrder,setErrorLimitOrder] = useState(false)
+    const navigate = useNavigate()
+    const location = useLocation()
     const dispatch = useDispatch()
 
     const onChange = (value) => { 
         setNumProduct(Number(value))
+    }
+
+    const fetchGetDetailsProduct = async (context) => {
+        const id = context?.queryKey && context?.queryKey[1]
+        if(id) {
+            const res = await ProductService.getDetailsProduct(id)
+            return res.data
+        }
     }
 
     useEffect(() => {
@@ -56,13 +74,70 @@ const ProductDetailsComponent = ({idProduct}) => {
     }
 
     const { isLoading, data: productDetails } = useQuery(['product-details', idProduct], fetchGetDetailsProduct, { enabled : !!idProduct})
+    const handleAddOrderProduct = () => {
+        if(!user?.id) {
+            navigate('/sign-in', {state: location?.pathname})
+        }else {
+            // {
+            //     name: { type: String, required: true },
+            //     amount: { type: Number, required: true },
+            //     image: { type: String, required: true },
+            //     price: { type: Number, required: true },
+            //     product: {
+            //         type: mongoose.Schema.Types.ObjectId,
+            //         ref: 'Product',
+            //         required: true,
+            //     },
+            // },
+            const orderRedux = order?.orderItems?.find((item) => item.product === productDetails?._id)
+            if((orderRedux?.amount + numProduct) <= orderRedux?.countInstock || (!orderRedux && productDetails?.countInStock > 0)) {
+                dispatch(addOrderProduct({
+                    orderItem: {
+                        name: productDetails?.name,
+                        amount: numProduct,
+                        image: productDetails?.image,
+                        price: productDetails?.price,
+                        product: productDetails?._id,
+                        discount: productDetails?.discount,
+                        countInstock: productDetails?.countInStock
+                    }
+                }))
+            } else {
+                setErrorLimitOrder(true)
+            }
+        }
+    }
 
     return (
         <Loading isLoading={isLoading}>
             <Row style={{ padding: '16px', background: '#fff', borderRadius: '4px', height:'100%' }}>
                 <Col span={10} style={{ borderRight: '1px solid #e5e5e5', paddingRight: '8px' }}>
                     <Image src={productDetails?.image} alt="image prodcut" preview={false} />
-                    
+                    <Row style={{ paddingTop: '10px', justifyContent: 'space-between' }}>
+                        <WrapperStyleColImage span={4} sty>
+                            <WrapperStyleImageSmall src={imageProductSmall} alt="image small" preview={false} />
+                        </WrapperStyleColImage>
+                        <WrapperStyleColImage span={4}>
+                            <WrapperStyleImageSmall src={imageProductSmall} alt="image small" preview={false} />
+                        </WrapperStyleColImage>
+
+                        <WrapperStyleColImage span={4}>
+                            <WrapperStyleImageSmall src={imageProductSmall} alt="image small" preview={false} />
+                        </WrapperStyleColImage>
+
+                        <WrapperStyleColImage span={4}>
+                            <WrapperStyleImageSmall src={imageProductSmall} alt="image small" preview={false} />
+                        </WrapperStyleColImage>
+
+                        <WrapperStyleColImage span={4}>
+                            <WrapperStyleImageSmall src={imageProductSmall} alt="image small" preview={false} />
+                        </WrapperStyleColImage>
+
+                        <WrapperStyleColImage span={4}>
+                            <WrapperStyleImageSmall src={imageProductSmall} alt="image small" preview={false} />
+                        </WrapperStyleColImage>
+
+                    </Row>
                 </Col>
                 <Col span={14} style={{ paddingLeft: '10px' }}>
                     <WrapperStyleNameProduct>{productDetails?.name}</WrapperStyleNameProduct>
@@ -108,7 +183,7 @@ const ProductDetailsComponent = ({idProduct}) => {
                                     borderRadius: '4px'
                                 }}
                                 onClick={handleAddOrderProduct}
-                                textbutton={'Thêm vào giỏ hàng'}
+                                textbutton={'Chọn mua'}
                                 styleTextButton={{ color: '#fff', fontSize: '15px', fontWeight: '700' }}
                             ></ButtonComponent>
                             {errorLimitOrder && <div style={{color: 'red'}}>San pham het hang</div>}
@@ -127,6 +202,13 @@ const ProductDetailsComponent = ({idProduct}) => {
                         ></ButtonComponent>
                     </div>
                 </Col>
+                <CommentComponent 
+                    dataHref={process.env.REACT_APP_IS_LOCAL 
+                        ? "https://developers.facebook.com/docs/plugins/comments#configurator"
+                        : window.location.href
+                    } 
+                    width="1270" 
+                />
             </Row >
             
         </Loading>
