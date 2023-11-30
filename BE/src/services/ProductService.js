@@ -174,7 +174,6 @@ const getAllProduct = (limit, page, sort, filter) => {
     })
 }
 
-
 module.exports = {
     createProduct,
     updateProduct,
