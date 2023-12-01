@@ -152,12 +152,6 @@ const AdminProduct = () => {
     return res
   }
 
-  const { data, isLoading, isSuccess, isError } = mutation
-  const { data: dataUpdated, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
-  const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDelected, isError: isErrorDeleted } = mutationDeleted
-  const { data: dataDeletedMany, isLoading: isLoadingDeletedMany, isSuccess: isSuccessDelectedMany, isError: isErrorDeletedMany } = mutationDeletedMany
-
-
   const queryProduct = useQuery({ queryKey: ['products'], queryFn: getAllProducts })
   const typeProduct = useQuery({ queryKey: ['type-product'], queryFn: fetchAllTypeProduct })
   const { isLoading: isLoadingProducts, data: products } = queryProduct
@@ -173,12 +167,11 @@ const AdminProduct = () => {
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
-    // setSearchText(selectedKeys[0]);
-    // setSearchedColumn(dataIndex);
+    
   };
   const handleReset = (clearFilters) => {
     clearFilters();
-    // setSearchText('');
+
   };
 
   const getColumnSearchProps = (dataIndex) => ({
@@ -238,20 +231,7 @@ const AdminProduct = () => {
         setTimeout(() => searchInput.current?.select(), 100);
       }
     },
-    // render: (text) =>
-    //   searchedColumn === dataIndex ? (
-    //     // <Highlighter
-    //     //   highlightStyle={{
-    //     //     backgroundColor: '#ffc069',
-    //     //     padding: 0,
-    //     //   }}
-    //     //   searchWords={[searchText]}
-    //     //   autoEscape
-    //     //   textToHighlight={text ? text.toString() : ''}
-    //     // />
-    //   ) : (
-    //     text
-    //   ),
+  
   });
 
 
@@ -344,19 +324,6 @@ const AdminProduct = () => {
     }
   }, [isSuccessDelected])
 
-  const handleCloseDrawer = () => {
-    setIsOpenDrawer(false);
-    setStateProductDetails({
-      name: '',
-      price: '',
-      description: '',
-      rating: '',
-      image: '',
-      type: '',
-      countInStock: ''
-    })
-    form.resetFields()
-  };
 
   useEffect(() => {
     if (isSuccessUpdated && dataUpdated?.status === 'OK') {
@@ -582,91 +549,6 @@ const AdminProduct = () => {
         </Loading>
       </ModalComponent>
       <DrawerComponent title='Chi tiết sản phẩm' isOpen={isOpenDrawer} onClose={() => setIsOpenDrawer(false)} width="90%">
-        <Loading isLoading={isLoadingUpdate || isLoadingUpdated}>
-
-          <Form
-            name="basic"
-            labelCol={{ span: 2 }}
-            wrapperCol={{ span: 22 }}
-            onFinish={onUpdateProduct}
-            autoComplete="on"
-            form={form}
-          >
-            <Form.Item
-              label="Name"
-              name="name"
-              rules={[{ required: true, message: 'Please input your name!' }]}
-            >
-              <InputComponent value={stateProductDetails['name']} onChange={handleOnchangeDetails} name="name" />
-            </Form.Item>
-
-            <Form.Item
-              label="Type"
-              name="type"
-              rules={[{ required: true, message: 'Please input your type!' }]}
-            >
-              <InputComponent value={stateProductDetails['type']} onChange={handleOnchangeDetails} name="type" />
-            </Form.Item>
-            <Form.Item
-              label="Count inStock"
-              name="countInStock"
-              rules={[{ required: true, message: 'Please input your count inStock!' }]}
-            >
-              <InputComponent value={stateProductDetails.countInStock} onChange={handleOnchangeDetails} name="countInStock" />
-            </Form.Item>
-            <Form.Item
-              label="Price"
-              name="price"
-              rules={[{ required: true, message: 'Please input your count price!' }]}
-            >
-              <InputComponent value={stateProductDetails.price} onChange={handleOnchangeDetails} name="price" />
-            </Form.Item>
-            <Form.Item
-              label="Description"
-              name="description"
-              rules={[{ required: true, message: 'Please input your count description!' }]}
-            >
-              <InputComponent value={stateProductDetails.description} onChange={handleOnchangeDetails} name="description" />
-            </Form.Item>
-            <Form.Item
-              label="Rating"
-              name="rating"
-              rules={[{ required: true, message: 'Please input your count rating!' }]}
-            >
-              <InputComponent value={stateProductDetails.rating} onChange={handleOnchangeDetails} name="rating" />
-            </Form.Item>
-            <Form.Item
-              label="Discount"
-              name="discount"
-              rules={[{ required: true, message: 'Please input your discount of product!' }]}
-            >
-              <InputComponent value={stateProductDetails.discount} onChange={handleOnchangeDetails} name="discount" />
-            </Form.Item>
-            <Form.Item
-              label="Image"
-              name="image"
-              rules={[{ required: true, message: 'Please input your count image!' }]}
-            >
-              <WrapperUploadFile onChange={handleOnchangeAvatarDetails} maxCount={1}>
-                <Button >Select File</Button>
-                {stateProductDetails?.image && (
-                  <img src={stateProductDetails?.image} style={{
-                    height: '60px',
-                    width: '60px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    marginLeft: '10px'
-                  }} alt="avatar" />
-                )}
-              </WrapperUploadFile>
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 20, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                Apply
-              </Button>
-            </Form.Item>
-          </Form>
-        </Loading>
       </DrawerComponent>
       <ModalComponent title="Xóa sản phẩm" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteProduct}>
         <Loading isLoading={isLoadingDeleted}>
