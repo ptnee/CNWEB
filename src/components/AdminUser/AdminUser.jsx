@@ -48,9 +48,25 @@ const AdminUser = () => {
     },
   )
 
-  
+  const mutationDeletedMany = useMutationHooks(
+    (data) => {
+      const { token, ...ids
+      } = data
+      const res = UserService.deleteManyUser(
+        ids,
+        token)
+      return res
+    },
+  )
 
-  
+  const handleDelteManyUsers = (ids) => {
+    mutationDeletedMany.mutate({ ids: ids, token: user?.access_token }, {
+      onSettled: () => {
+        queryClient.invalidateQueries(['users'])
+      }
+    })
+  }
+
   const mutationDeleted = useMutationHooks(
     (data) => {
       const { id,
@@ -63,7 +79,20 @@ const AdminUser = () => {
     },
   )
 
- 
+  const fetchGetDetailsUser = async (rowSelected) => {
+    const res = await UserService.getDetailsUser(rowSelected)
+    if (res?.data) {
+      setStateUserDetails({
+        name: res?.data?.name,
+        email: res?.data?.email,
+        phone: res?.data?.phone,
+        isAdmin: res?.data?.isAdmin,
+        address: res?.data?.address,
+        avatar: res.data?.avatar
+      })
+    }
+    setIsLoadingUpdate(false)
+  }
 
   useEffect(() => {
     form.setFieldsValue(stateUserDetails)
@@ -163,10 +192,67 @@ const AdminUser = () => {
         setTimeout(() => searchInput.current?.select(), 100);
       }
     },
- 
+    // render: (text) =>
+    //   searchedColumn === dataIndex ? (
+    //     // <Highlighter
+    //     //   highlightStyle={{
+    //     //     backgroundColor: '#ffc069',
+    //     //     padding: 0,
+    //     //   }}
+    //     //   searchWords={[searchText]}
+    //     //   autoEscape
+    //     //   textToHighlight={text ? text.toString() : ''}
+    //     // />
+    //   ) : (
+    //     text
+    //   ),
   });
 
-  
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      sorter: (a, b) => a.name.length - b.name.length,
+      ...getColumnSearchProps('name')
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      sorter: (a, b) => a.email.length - b.email.length,
+      ...getColumnSearchProps('email')
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      sorter: (a, b) => a.address.length - b.address.length,
+      ...getColumnSearchProps('address')
+    },
+    {
+      title: 'Admin',
+      dataIndex: 'isAdmin',
+      filters: [
+        {
+          text: 'True',
+          value: true,
+        },
+        {
+          text: 'False',
+          value: false,
+        }
+      ],
+    },
+    {
+      title: 'Phone',
+      dataIndex: 'phone',
+      sorter: (a, b) => a.phone - b.phone,
+      ...getColumnSearchProps('phone')
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      render: renderAction
+    },
+  ];
   const dataTable = users?.data?.length > 0 && users?.data?.map((user) => {
     return { ...user, key: user._id, isAdmin: user.isAdmin ? 'TRUE' : 'FALSE' }
   })
