@@ -18,7 +18,6 @@ const createProduct = async (req, res) => {
     }
 }
 
-
 const updateProduct = async (req, res) => {
     try {
         const productId = req.params.id
@@ -93,7 +92,6 @@ const deleteMany = async (req, res) => {
     }
 }
 
-
 const getAllProduct = async (req, res) => {
     try {
         const { limit, page, sort, filter } = req.query
@@ -105,7 +103,6 @@ const getAllProduct = async (req, res) => {
         })
     }
 }
-
 
 const getAllType = async (req, res) => {
     try {

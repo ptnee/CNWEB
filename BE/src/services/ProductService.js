@@ -110,7 +110,6 @@ const deleteProduct = (id) => {
     })
 }
 
-
 const deleteManyProduct = (ids) => {
     return new Promise(async (resolve, reject) => {
         try {
